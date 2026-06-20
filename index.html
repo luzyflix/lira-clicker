@@ -1,0 +1,1134 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>SRC Football Manager: Ultimate v58.1</title>
+    <style>
+        :root {
+            --primary: #00f0ff;
+            --secondary: #ffcc00;
+            --danger: #ff0055;
+            --bg-dark: #070911;
+            --card-bg: rgba(15, 20, 35, 0.95);
+            --border: rgba(255, 255, 255, 0.08);
+            --success: #00ff66;
+            
+            /* Paket Renkleri */
+            --pack-bronz: linear-gradient(135deg, #a05a2c, #cd7f32);
+            --pack-gumus: linear-gradient(135deg, #718096, #cbd5e0);
+            --pack-altin: linear-gradient(135deg, #d69e2e, #f6e05e);
+            --pack-elmas: linear-gradient(135deg, #3182ce, #63b3ed, #00f0ff);
+            --pack-ultimate: linear-gradient(135deg, #ff0055, #9900ff, #ffcc00);
+            --pack-mystery: linear-gradient(45deg, #000000, #4a000b, #9900ff, #00f0ff);
+            --pack-new1: linear-gradient(135deg, #4a5568, #2d3748);
+            --pack-new2: linear-gradient(135deg, #319795, #4fd1c5);
+            --pack-new3: linear-gradient(135deg, #dd6b20, #f6ad55);
+            --pack-new4: linear-gradient(135deg, #805ad5, #b794f7);
+            --pack-new5: linear-gradient(135deg, #b83280, #f687b3);
+            --pack-new6: linear-gradient(135deg, #2b6cb0, #4299e1);
+            --pack-new7: linear-gradient(135deg, #2c5282, #2b6cb0);
+            --pack-new8: linear-gradient(45deg, #111, #d4af37, #000);
+            --pack-new9: linear-gradient(135deg, #44337a, #b83280, #2b6cb0);
+            --pack-new10: linear-gradient(45deg, #ff0055, #000000, #ffcc00, #00f0ff);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; user-select: none; -webkit-user-select: none; font-family: 'Segoe UI', Roboto, sans-serif; }
+        body { background-color: var(--bg-dark); color: #fff; width: 100vw; height: 100vh; overflow: hidden; display: flex; justify-content: center; align-items: center; }
+
+        .wrapper { position: relative; width: 100%; height: 100%; background: #04050a; display: flex; flex-direction: column; }
+        .screen { position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: none; justify-content: center; align-items: center; flex-direction: column; padding: 15px; z-index: 10; }
+        
+        .glass-card {
+            background: var(--card-bg); border: 2px solid var(--border); border-radius: 24px; padding: 22px;
+            width: 95%; max-width: 450px; text-align: center; box-shadow: 0 0 40px rgba(0, 240, 255, 0.1);
+            position: relative; max-height: 95vh; overflow-y: auto; -webkit-overflow-scrolling: touch;
+        }
+
+        .title { font-size: 2rem; font-weight: 900; font-style: italic; letter-spacing: -1px; margin-bottom: 5px; text-shadow: 0 0 20px rgba(0,240,255,0.3); }
+        .title span { color: var(--secondary); }
+        .subtitle { font-size: 0.75rem; letter-spacing: 4px; color: var(--primary); font-weight: bold; margin-bottom: 20px; }
+
+        .btn {
+            width: 100%; padding: 13px; font-size: 1rem; font-weight: 800; border-radius: 12px; border: none;
+            cursor: pointer; text-transform: uppercase; margin-bottom: 10px; transition: transform 0.1s; display: block;
+        }
+        .btn:active { transform: scale(0.98); }
+        .btn-primary { background: linear-gradient(45deg, var(--primary), #0099ff); color: #000; box-shadow: 0 0 15px rgba(0,240,255,0.2); }
+        .btn-success { background: linear-gradient(45deg, var(--success), #009933); color: #000; }
+        .btn-secondary { background: rgba(255,255,255,0.05); border: 1px solid var(--border); color: #fff; }
+        .btn-danger { background: linear-gradient(45deg, var(--danger), #990033); color: #fff; }
+
+        .src-input, .src-select {
+            width: 100%; padding: 12px; background: rgba(0,0,0,0.5); border: 1px solid var(--border);
+            border-radius: 12px; color: #fff; text-align: center; font-size: 0.95rem; margin-bottom: 12px; outline: none;
+        }
+
+        /* Layout */
+        .game-layout { display: flex; flex-direction: column; width: 100%; height: 100%; overflow: hidden; }
+        .top-bar { padding: 12px; background: #0c0f1d; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; }
+        .btn-top { border: none; color: #fff; padding: 8px 12px; font-weight: 800; border-radius: 10px; font-size: 0.72rem; cursor: pointer; }
+        .btn-top-admin { background: linear-gradient(45deg, var(--danger), var(--secondary)); }
+        .btn-top-menu { background: rgba(255,255,255,0.1); border: 1px solid var(--border); }
+        
+        .hud-zone { padding: 14px; text-align: center; background: #090c15; border-bottom: 1px solid var(--border); flex-shrink: 0; }
+        .money-text { font-size: 2.2rem; font-weight: 900; color: var(--secondary); text-shadow: 0 0 15px rgba(255,204,0,0.2); }
+        
+        .click-pitch { height: 100px; min-height: 100px; display: flex; justify-content: center; align-items: center; position: relative; background: radial-gradient(circle, #161f38 0%, #05070c 100%); flex-shrink: 0; }
+        .football-btn {
+            width: 65px; height: 65px; border-radius: 50%; background: #fff; border: 4px double #000;
+            box-shadow: 0 0 25px rgba(255,255,255,0.2), inset 0 0 15px rgba(0,0,0,0.3);
+            display: flex; justify-content: center; align-items: center; cursor: pointer; transition: transform 0.05s;
+        }
+        .football-btn:active { transform: scale(0.92); }
+        .football-btn::before { content: '⚽'; font-size: 1.8rem; }
+
+        /* MAÇ PANELİ */
+        .match-zone { background: #0d1224; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); padding: 8px; text-align: center; font-size: 0.8rem; flex-shrink: 0; }
+        .match-ticker { font-weight: bold; color: var(--secondary); }
+        .match-log { font-size: 0.75rem; color: #a0aec0; margin-top: 2px; font-style: italic; }
+
+        /* TABS SYSTEM */
+        .tabs-navigation { display: flex; background: #0c0f1d; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); flex-shrink: 0; }
+        .tab-btn { flex: 1; min-width: 80px; padding: 14px 5px; background: transparent; border: none; color: #8a99ad; font-weight: 800; font-size: 0.72rem; cursor: pointer; text-transform: uppercase; transition: all 0.2s; text-align: center; }
+        .tab-btn.active { color: var(--primary); background: rgba(0, 240, 255, 0.05); border-bottom: 2px solid var(--primary); }
+
+        /* ANA KAYDIRMA ALANI */
+        .scroller-panel { flex: 1; background: #06080e; overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 12px; padding-bottom: 40px; position: relative; }
+        .tab-content { display: none; height: auto; }
+        .tab-content.active { display: block; }
+
+        .panel-heading { font-size: 0.85rem; font-weight: 900; margin-bottom: 12px; color: var(--primary); letter-spacing: 1px; margin-top: 5px; }
+        
+        /* GRID PAKET DÜZENİ */
+        .packs-grid-container { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; padding-bottom: 20px; }
+        .pack-box-card {
+            border-radius: 12px; padding: 10px 6px; text-align: center;
+            position: relative; border: 1px solid rgba(255,255,255,0.15); box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            display: flex; flex-direction: column; justify-content: space-between; min-height: 125px;
+        }
+        .p-bronz { background: var(--pack-bronz); }
+        .p-gumus { background: var(--pack-gumus); color: #000; }
+        .p-altin { background: var(--pack-altin); color: #000; }
+        .p-elmas { background: var(--pack-elmas); }
+        .p-ultimate { background: var(--pack-ultimate); }
+        .p-mystery { background: var(--pack-mystery); border: 1px dashed var(--primary); }
+        .p-new1 { background: var(--pack-new1); }
+        .p-new2 { background: var(--pack-new2); color: #000; }
+        .p-new3 { background: var(--pack-new3); color: #000; }
+        .p-new4 { background: var(--pack-new4); }
+        .p-new5 { background: var(--pack-new5); }
+        .p-new6 { background: var(--pack-new6); }
+        .p-new7 { background: var(--pack-new7); }
+        .p-new8 { background: var(--pack-new8); border: 1px solid #ffcc00; }
+        .p-new9 { background: var(--pack-new9); border: 1px solid #00f0ff; }
+        .p-new10 { background: var(--pack-new10); border: 1px solid var(--danger); }
+
+        .pack-card-title { font-weight: 900; font-style: italic; font-size: 0.65rem; text-shadow: 0 1px 3px rgba(0,0,0,0.5); line-height: 1.2; }
+        .pack-card-info { font-size: 0.52rem; opacity: 0.9; margin-top: 2px; font-weight: bold; line-height: 1.1; }
+        .pack-card-btn { background: #000; color: #fff; border: none; font-weight: 900; padding: 5px; border-radius: 6px; font-size: 0.65rem; cursor: pointer; margin-top: 6px; width: 100%; box-shadow: 0 2px 4px rgba(0,0,0,0.4); }
+
+        /* Overlays */
+        .pack-overlay { position: absolute; top:0; left:0; width:100%; height:100%; background: rgba(5,7,12,0.96); z-index: 100; display: none; justify-content: center; align-items: center; }
+        .reveal-card { width: 220px; padding: 25px 15px; border-radius: 20px; text-align: center; box-shadow: 0 0 30px rgba(255,255,255,0.2); animation: cardPop 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
+        @keyframes cardPop { 0% { transform: scale(0.5); opacity:0; } 100% { transform: scale(1); opacity:1; } }
+
+        .live-match-overlay { position: absolute; top:0; left:0; width:100%; height:100%; background: rgba(4,6,12,0.98); z-index: 150; display: none; justify-content: center; align-items: center; }
+        .live-match-box { width: 90%; max-width: 400px; background: #0d111a; border: 2px solid var(--primary); border-radius: 20px; padding: 20px; text-align: center; }
+        .live-score-board { display: flex; justify-content: space-around; align-items: center; margin: 15px 0; background: rgba(0,0,0,0.4); padding: 15px; border-radius: 12px; font-size: 1.5rem; font-weight: 900; }
+        .live-event-ticker { min-height: 50px; display: flex; align-items: center; justify-content: center; font-size: 0.9rem; color: var(--secondary); font-weight: bold; background: rgba(255,255,255,0.02); padding: 10px; border-radius: 8px; border-left: 4px solid var(--primary); margin-top: 10px; font-style: italic; }
+
+        .floating-add { position: absolute; font-weight: 900; color: var(--primary); pointer-events: none; animation: floatUp 0.6s ease-out forwards; font-size: 1.2rem; z-index: 99; }
+        @keyframes floatUp { 0% { opacity: 1; transform: translateY(0); } 100% { opacity: 0; transform: translateY(-50px); } }
+
+        .player-card, .badge-tag, .p-ultimate, .p-mystery, .p-new8, .p-new9, .p-new10, .trophy-card { background-size: 400% 400% !important; animation: gradientShift 6s ease infinite; }
+        @keyframes gradientShift { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
+
+        .badge-tag { display: inline-block; padding: 4px 10px; font-size: 0.7rem; font-weight: 900; border-radius: 6px; letter-spacing: 1px; text-transform: uppercase; margin-left: 6px; border: 1px solid rgba(255,255,255,0.1); }
+        .tag-owner { background: linear-gradient(-45deg, #000000, #4a000b, #ff002b, #1a0004); color: #fff; }
+        .tag-admin { background: linear-gradient(-45deg, #ff5500, #ffcc00, #ff8800, #cc4400); color: #000; }
+        .tag-player { background: linear-gradient(-45deg, #1e2230, #3a3f50, #12141c, #282c37); color: #e2e8f0; }
+
+        /* Player Card Tiers */
+        .player-card { padding: 12px 14px; border-radius: 14px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; border: 1px solid rgba(255,255,255,0.1); }
+        .item-tier-normal { background: linear-gradient(-45deg, #1e2230, #3a3f50, #12141c, #282c37); border-left: 5px solid #8a99ad; }
+        .item-tier-op { background: linear-gradient(-45deg, #ff0055, #00f0ff, #ffcc00, #ff00ff); border-left: 5px solid #ffffff; }
+        .item-tier-mega { background: linear-gradient(-45deg, #000000, #4a000b, #990011, #1a0004); border-left: 5px solid #ff3333; }
+        .item-tier-icons { background: linear-gradient(-45deg, #111111, #4d3d0c, #d4af37, #1a1505); border-left: 5px solid #d4af37; color: #fff; }
+        .item-tier-supreme { background: linear-gradient(-45deg, #2A0845, #6441A5, #00F0FF, #150226); border-left: 5px solid #00f0ff; color: #fff; }
+        .item-tier-og { background: linear-gradient(-45deg, #000000, #0a2f1d, #00ff66, #02140b); border-left: 5px solid #00ff66; }
+        .item-tier-admin { background: linear-gradient(-45deg, #ff5500, #ffcc00, #ff8800, #cc4400); border-left: 5px solid #ffea00; color: #000; }
+
+        .p-title { font-weight: 800; font-size: 0.9rem; }
+        .p-sub { font-size: 0.7rem; color: #e2e8f0; margin-top: 1px; }
+        .action-container { display: flex; gap: 6px; align-items: center; }
+        .p-cost { background: rgba(0,0,0,0.6); color: #fff; font-weight: 800; padding: 6px 12px; border-radius: 8px; font-size: 0.75rem; border: 1px solid rgba(255,255,255,0.2); cursor: pointer; }
+        .p-sell-btn { background: linear-gradient(45deg, var(--danger), #aa0022); color: #fff; font-weight: 800; padding: 6px 10px; border-radius: 8px; font-size: 0.7rem; border: none; cursor: pointer; text-transform: uppercase; }
+
+        .sponsor-card, .trophy-card { background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 12px; padding: 12px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+        .trophy-card { background: linear-gradient(135deg, #111827, #1f2937); border-left: 5px solid var(--secondary); width: 100%; }
+        .trophy-unlocked { background: linear-gradient(-45deg, #000000, #2c1a04, #ffaa00, #140b00); border-left: 5px solid #ffd700; box-shadow: 0 0 15px rgba(255,215,0,0.2); }
+
+        .admin-row { display: flex; gap: 8px; margin-bottom: 8px; text-align: left; flex-direction: column; background: rgba(0,0,0,0.2); padding: 10px; border-radius: 10px; border: 1px dashed var(--border); }
+        .admin-inner-flex { display: flex; gap: 6px; }
+        .scroll-grid { max-height: 160px; overflow-y: auto; background: rgba(0,0,0,0.4); padding: 6px; border-radius: 8px; margin-top: 5px; -webkit-overflow-scrolling: touch; }
+        .grid-line { display: flex; justify-content: space-between; align-items: center; font-size: 0.8rem; padding: 6px; border-bottom: 1px solid rgba(255,255,255,0.03); }
+        .leaderboard-banner { background: linear-gradient(90deg, #111424, #1b213a); border: 1px solid var(--border); border-radius: 12px; padding: 8px 12px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; font-size: 0.75rem; }
+        
+        /* Arama Alanı Stili */
+        .search-container { display: flex; gap: 6px; margin-bottom: 12px; }
+        .search-input { flex: 1; padding: 10px; background: rgba(0,0,0,0.4); border: 1px solid var(--border); border-radius: 10px; color: #fff; font-size: 0.85rem; outline: none; text-align: left; }
+    </style>
+</head>
+<body>
+
+    <div class="wrapper">
+        
+        <div id="live-match-modal" class="live-match-overlay">
+            <div class="live-match-box">
+                <div style="font-size:0.7rem; color:var(--danger); font-weight:900; letter-spacing:2px;">SRC CANLI MAÇ MERKEZİ</div>
+                <h3 id="live-match-title" style="margin-top:5px; font-style:italic; font-size:1.1rem;">DERBİ MAÇI</h3>
+                
+                <div class="live-score-board">
+                    <span id="live-home-team" style="font-size:0.9rem; max-width:110px; overflow:hidden;">KULÜP</span>
+                    <span id="live-score-text" style="color:var(--secondary); letter-spacing:2px;">0 - 0</span>
+                    <span id="live-away-team" style="font-size:0.9rem; max-width:110px; overflow:hidden;">RAKİP</span>
+                </div>
+
+                <div id="live-event-box" class="live-event-ticker">Takımlar sahaya çıkıyor...</div>
+                
+                <div style="background:rgba(255,255,255,0.05); height:6px; border-radius:3px; margin-top:20px; overflow:hidden;">
+                    <div id="live-match-progress" style="background:var(--primary); height:100%; width:0%; transition: width 0.4s linear;"></div>
+                </div>
+            </div>
+        </div>
+
+        <div id="pack-reveal-overlay" class="pack-overlay">
+            <div id="pack-card-box" class="reveal-card">
+                <div style="font-size: 0.65rem; font-weight: 900; letter-spacing: 2px; margin-bottom: 5px; color: var(--secondary);">SRC SCOUT SYSTEM</div>
+                <h2 id="reveal-player-name" style="font-size: 1.3rem; font-weight: 900; font-style: italic; margin-bottom: 8px;">PLAYER NAME</h2>
+                <p id="reveal-player-stat" style="font-size: 0.8rem; font-weight: bold; margin-bottom: 20px;">+5,000/sn</p>
+                <button onclick="closePackReveal()" style="width: 100%; margin-top:0; background:#fff; color:#000; padding:8px; font-weight:900; border-radius:8px; border:none; cursor:pointer;">KADROYA ENTEGRE ET</button>
+            </div>
+        </div>
+        
+        <div id="screen-main-menu" class="screen" style="display: flex;">
+            <div class="glass-card">
+                <h1 class="title">FOOTBALL<span> MANAGER</span></h1>
+                <p class="subtitle">SRC GAMES EDITION V58.1</p>
+                <button onclick="goScreen('screen-player-auth')" class="btn btn-primary" style="margin-bottom: 15px;">PLAYER GİRİŞİ</button>
+                <button onclick="goScreen('screen-credits')" class="btn btn-secondary">CREDITS</button>
+            </div>
+        </div>
+
+        <div id="screen-credits" class="screen">
+            <div class="glass-card" style="border-color: var(--primary);">
+                <h2 style="color: var(--primary); font-size: 0.85rem; letter-spacing: 3px; font-weight: 900; margin-bottom: 10px;">PRODUCER</h2>
+                <h1 style="font-size: 3rem; font-weight: 900; color: #fff; font-style: italic; letter-spacing: -1px; text-shadow: 0 0 25px var(--primary); margin-bottom: 25px;">SRC GAMES</h1>
+                <button onclick="goScreen('screen-main-menu')" class="btn btn-secondary" style="font-size:0.85rem; padding:11px;">ANA MENÜYE DÖN</button>
+            </div>
+        </div>
+
+        <div id="screen-player-auth" class="screen">
+            <div class="glass-card">
+                <h2 style="color: var(--primary); margin-bottom: 15px; font-style: italic;">👤 PLAYER GİRİŞİ</h2>
+                <div style="font-size:0.65rem; color:var(--secondary); margin-bottom:12px; font-weight:bold; line-height:1.3;">İpucu: İsminin içine BJK, GS, FB veya TS ekleyerek kulübünün kuruluş yılına özel çarpan kazan!</div>
+                <input type="text" id="player-username" class="src-input" placeholder="Oyuncu İsmini Yazın...">
+                <button onclick="submitPlayerAuth()" class="btn btn-success">KULÜBÜ KUR VE BAŞLA</button>
+                <button onclick="goScreen('screen-main-menu')" class="btn btn-secondary" style="font-size:0.85rem; padding:10px;">GERİ DÖN</button>
+            </div>
+        </div>
+
+        <div id="screen-wall" class="screen">
+            <div class="glass-card" style="border-color: var(--danger);">
+                <h2 style="color: var(--danger); margin-bottom: 15px; font-style: italic; font-size: 1.1rem;">🔒 SRC SECURITY CHECK</h2>
+                <input type="password" id="wall-pass" class="src-input" placeholder="Şifreyi Girin..." style="border-color: var(--danger);">
+                <button onclick="submitWallAuth()" class="btn btn-danger">DOĞRULA</button>
+                <button onclick="goScreen('screen-game')" class="btn btn-secondary" style="font-size:0.85rem; padding:10px;">İPTAL</button>
+            </div>
+        </div>
+
+        <div id="screen-admin-auth" class="screen">
+            <div class="glass-card" style="border-color: var(--secondary);">
+                <h2 style="color: var(--secondary); margin-bottom: 15px; font-style: italic; font-size: 1.1rem;">🔒 PANEL MANAGEMENT</h2>
+                <input type="text" id="adm-user" class="src-input" placeholder="Kullanıcı Adı...">
+                <input type="password" id="adm-pass" class="src-input" placeholder="Şifre...">
+                <div style="display: flex; gap: 10px;">
+                    <button onclick="submitAdminLogin()" class="btn btn-success" style="flex:1;">LOGIN</button>
+                    <button onclick="submitAdminRegister()" class="btn btn-primary" style="flex:1;">REGISTER</button>
+                </div>
+                <button onclick="goScreen('screen-game')" class="btn btn-secondary" style="font-size:0.85rem; padding:10px; margin-top:5px;">OYUNA DÖN</button>
+            </div>
+        </div>
+
+        <div id="screen-game" class="screen" style="padding:0; position: relative;">
+            <div class="game-layout">
+                <div class="top-bar">
+                    <button class="btn-top btn-top-menu" onclick="triggerExitToMenu()">↩️ MENÜ</button>
+                    <div id="user-display-zone" style="font-size: 0.85rem; font-weight: 800;"></div>
+                    <button class="btn-top btn-top-admin" onclick="triggerAdminGate()">⚡ PANEL</button>
+                </div>
+                <div class="hud-zone">
+                    <div style="font-size: 0.8rem; color: #8a99ad;" id="game-club-title">KULÜP KADROSU</div>
+                    <div class="money-text"><span id="val-money">0</span> ₺</div>
+                    <div style="font-size: 0.72rem; color: var(--primary); margin-top:2px;">OVR: <span id="val-ovr" style="color:var(--secondary); font-weight:900;">0</span> | Tık: +<span id="val-cpc">1</span> | Pasif: +<span id="val-cps">0</span>/sn <span id="val-mult" style="color:var(--success);"></span></div>
+                </div>
+                
+                <div class="click-pitch" id="pitch-zone" onclick="triggerPitchClick(event)">
+                    <div class="football-btn"></div>
+                </div>
+
+                <div class="match-zone">
+                    <div id="match-status" class="match-ticker">Sıradaki Maç Hazırlığı Yapılıyor...</div>
+                    <div id="match-log" class="match-log">Lig fikstürü bekleniyor.</div>
+                    <button id="btn-start-match-action" class="btn btn-success" style="display:none; margin: 5px auto 0 auto; width:70%; padding:6px; font-size:0.8rem; box-shadow:0 0 10px var(--success);" onclick="triggerMatchActionClick()">MAÇI BAŞLAT ⚽</button>
+                </div>
+
+                <div class="tabs-navigation">
+                    <button class="tab-btn active" onclick="switchGameTab('tab-market')">🏃 PAZAR</button>
+                    <button class="tab-btn" onclick="switchGameTab('tab-packs')">🎁 PAKETLER</button>
+                    <button class="tab-btn" onclick="switchGameTab('tab-sponsors')">👕 SPONSOR</button>
+                    <button class="tab-btn" onclick="switchGameTab('tab-trophies')">🏆 ÖDÜLLER</button>
+                </div>
+
+                <div class="scroller-panel">
+                    
+                    <div id="tab-market" class="tab-content active">
+                        <div class="glass-card-commission" id="txt-commission-level" style="font-size:0.68rem; background:rgba(255,255,255,0.02); padding:6px; text-align:center; border-radius:8px; border:1px solid var(--border); margin-bottom:8px; color:#cbd5e0;">
+                            ⚙️ Menajerlik Ücreti / Komisyon Oranı Hesapanıyor...
+                        </div>
+                        <div class="leaderboard-banner">
+                            <span>🏆 KULÜP STATUSÜ:</span>
+                            <span id="txt-leaderboard-rank" style="color:var(--secondary); font-weight:bold;">AMATÖR KÜME</span>
+                        </div>
+                        
+                        <div class="search-container">
+                            <input type="text" id="market-search-input" class="search-input" placeholder="🔍 Futbolcu ismi yazarak bul... (Boş bırakırsan hepsi gelir)" oninput="renderMarketList()">
+                            <button class="btn btn-primary" onclick="renderMarketList()" style="width: 70px; margin-bottom: 0; padding: 10px; font-size: 0.8rem;">ARA</button>
+                        </div>
+
+                        <div class="panel-heading">🏃 TRANSFER MARKETİ (EFSANELER SADECE PAKETTE!)</div>
+                        <div id="players-list-container"></div>
+                    </div>
+
+                    <div id="tab-packs" class="tab-content">
+                        <div class="panel-heading">🎁 TRANSFER SİSTEMİ PAKETLERİ (RİSK VS GARANTİ)</div>
+                        <div class="packs-grid-container">
+                            
+                            <div class="pack-box-card p-new1">
+                                <div class="pack-card-title">🏠 MAHALLE ALTYAPISI</div>
+                                <div class="pack-card-info">%100 Yerli Kadro</div>
+                                <button class="pack-card-btn" onclick="openSelectedPack('new1', 4000)">4.000 ₺</button>
+                            </div>
+                            <div class="pack-box-card p-bronz">
+                                <div class="pack-card-title">🥉 BRONZ PAKET</div>
+                                <div class="pack-card-info">%90 Norm | %10 OP</div>
+                                <button class="pack-card-btn" onclick="openSelectedPack('bronz', 18000)">18.000 ₺</button>
+                            </div>
+                            <div class="pack-box-card p-new2">
+                                <div class="pack-card-title">🌱 GENÇ YETENEK</div>
+                                <div class="pack-card-info">%85 Norm | %15 OP</div>
+                                <button class="pack-card-btn" onclick="openSelectedPack('new2', 55000)">55.000 ₺</button>
+                            </div>
+
+                            <div class="pack-box-card p-gumus">
+                                <div class="pack-card-title">🥈 GÜMÜŞ PAKET</div>
+                                <div class="pack-card-info">%70 Norm | %30 OP</div>
+                                <button class="pack-card-btn" onclick="openSelectedPack('gumus', 220000)">220.000 ₺</button>
+                            </div>
+                            <div class="pack-box-card p-new3">
+                                <div class="pack-card-title">🐅 ANADOLU KAPLANI</div>
+                                <div class="pack-card-info">%65 Norm | %35 OP</div>
+                                <button class="pack-card-btn" onclick="openSelectedPack('new3', 850000)">850.000 ₺</button>
+                            </div>
+                            <div class="pack-box-card p-altin">
+                                <div class="pack-card-title">🥇 ALTIN PAKET</div>
+                                <div class="pack-card-info">%40 Norm | %50 OP | %10 Mega</div>
+                                <button class="pack-card-btn" onclick="openSelectedPack('altin', 4500000)">4.5M ₺</button>
+                            </div>
+
+                            <div class="pack-box-card p-new4">
+                                <div class="pack-card-title">🌍 AVRUPA GÖZLEMCİ</div>
+                                <div class="pack-card-info">%35 Norm | %50 OP | %15 Mega</div>
+                                <button class="pack-card-btn" onclick="openSelectedPack('new4', 16000000)">16M ₺</button>
+                            </div>
+                            <div class="pack-box-card p-elmas">
+                                <div class="pack-card-title">💎 ELMAS PAKET</div>
+                                <div class="pack-card-info">%60 OP | %35 Mega | %5 OG</div>
+                                <button class="pack-card-btn" onclick="openSelectedPack('elmas', 65000000)">65M ₺</button>
+                            </div>
+                            <div class="pack-box-card p-new5">
+                                <div class="pack-card-title">🌟 SÜPER LİG YILDIZ</div>
+                                <div class="pack-card-info">%50 OP | %45 Mega | %5 OG</div>
+                                <button class="pack-card-btn" onclick="openSelectedPack('new5', 190000000)">190M ₺</button>
+                            </div>
+
+                            <div class="pack-box-card p-ultimate">
+                                <div class="pack-card-title">👑 SRC ULTIMATE</div>
+                                <div class="pack-card-info">%50 Mega | %40 OG | %10 ICONS</div>
+                                <button class="pack-card-btn" onclick="openSelectedPack('ultimate', 750000000)">750M ₺</button>
+                            </div>
+                            <div class="pack-box-card p-new6">
+                                <div class="pack-card-title">🌌 YILDIZ KARMASI</div>
+                                <div class="pack-card-info">%45 Mega | %45 OG | %10 ICONS</div>
+                                <button class="pack-card-btn" onclick="openSelectedPack('new6', 2200000000)">2.2B ₺</button>
+                            </div>
+                            <div class="pack-box-card p-new7">
+                                <div class="pack-card-title">🚀 GALAKTİK PAKET</div>
+                                <div class="pack-card-info">%40 OG | %45 ICONS | %15 SUPREME</div>
+                                <button class="pack-card-btn" onclick="openSelectedPack('new7', 9500000000)">9.5B ₺</button>
+                            </div>
+
+                            <div class="pack-box-card p-new8">
+                                <div class="pack-card-title" style="color: #d4af37;">📜 TARİHİN EN İYİLERİ</div>
+                                <div class="pack-card-info">Garantili OG / %25 Şansla İKON!</div>
+                                <button class="pack-card-btn" style="background:#d4af37; color:#000;" onclick="openSelectedPack('new8', 35000000000)">35B ₺</button>
+                            </div>
+                            <div class="pack-box-card p-new9">
+                                <div class="pack-card-title" style="color: #00f0ff;">⏳ KOZMİK ZAMAN</div>
+                                <div class="pack-card-info">Büyük Oranda İKON ve Gizli SUPREME!</div>
+                                <button class="pack-card-btn" style="background:#00f0ff; color:#000;" onclick="openSelectedPack('new9', 140000000000)">140B ₺</button>
+                            </div>
+                            
+                            <div class="pack-box-card p-mystery">
+                                <div class="pack-card-title" style="color:var(--secondary)">🔱 GİZEMLİ MİSTİK</div>
+                                <div class="pack-card-info">SADECE x20 DEV ÇARPAN KARTLARI!</div>
+                                <button class="pack-card-btn" style="background:linear-gradient(45deg, var(--danger), var(--primary));" onclick="openSelectedPack('mystery', 450000000000)">450B ₺</button>
+                            </div>
+
+                            <div class="pack-box-card p-new10" style="grid-column: span 3; min-height: 85px;">
+                                <div class="pack-card-title" style="color:#ffcc00; font-size:0.8rem; letter-spacing:1px;">⚡ SRC MASTER KADRO PAKETİ</div>
+                                <div class="pack-card-info">Premium Havuz + %1 Şansla Çift Etkili Süperstar LUZY Kartı Çıkabilir!</div>
+                                <button class="pack-card-btn" style="background:#fff; color:#000; font-size:0.8rem; padding:8px;" onclick="openSelectedPack('new10', 1200000000000)">1.2T ₺</button>
+                            </div>
+
+                        </div>
+                    </div>
+
+                    <div id="tab-sponsors" class="tab-content">
+                        <div class="panel-heading">👕 AKTİF SPONSORLUK TEKLİFLERİ</div>
+                        <div id="sponsors-container"></div>
+                    </div>
+
+                    <div id="tab-trophies" class="tab-content">
+                        <div class="panel-heading">🏆 KAZANILABİLİR KUPALAR VE SEZON ÖDÜLLERI</div>
+                        <div id="trophies-container"></div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <div id="screen-panel" class="screen">
+            <div class="glass-card" style="text-align: left; border-color: var(--danger);">
+                <h2 style="color: var(--danger); font-size: 1.1rem; margin-bottom: 12px; font-style: italic;" id="panel-title-text">CONTROL CABINET</h2>
+                
+                <div class="admin-row">
+                    <span style="font-size:0.75rem; color:var(--secondary); font-weight:bold;">💰 KULÜBE PARA AKTARIMI:</span>
+                    <div class="admin-inner-flex">
+                        <input type="number" id="pnl-money-amt" class="src-input" placeholder="Miktar..." style="margin-bottom:0; padding:8px; font-size:0.85rem;">
+                        <button class="btn btn-success" onclick="adminGiveMoneyAction()" style="margin-bottom:0; width:120px; padding:8px; font-size:0.8rem;">PARAYI BAS</button>
+                    </div>
+                </div>
+
+                <div class="admin-row">
+                    <span style="font-size:0.75rem; color:var(--primary); font-weight:bold;">🏃 KADROYA FUTBOLCU ENJEKTE ET (HIZLI BAS):</span>
+                    <div class="admin-inner-flex" style="margin-bottom: 5px;">
+                        <input type="number" id="pnl-player-qty" class="src-input" value="1" placeholder="Adet girin..." style="margin-bottom:0; padding:8px; font-size:0.85rem;">
+                    </div>
+                    <div class="scroll-grid" id="pnl-players-grid"></div>
+                </div>
+
+                <div class="admin-row" id="owner-creation-zone">
+                    <span style="font-size:0.75rem; color:var(--secondary); font-weight:bold;">🛠️ GELİŞMİŞ FUTBOLCU MOTORU:</span>
+                    <input type="text" id="own-create-name" class="src-input" placeholder="Futbolcu Adı..." style="padding:8px; font-size:0.85rem; margin-bottom:6px;">
+                    <select id="own-create-tier" class="src-select" style="padding:8px; font-size:0.85rem; margin-bottom:6px;">
+                        <option value="admin">Admin Tier</option>
+                        <option value="supreme">SUPREME Tier</option>
+                        <option value="icons">ICONS Tier</option>
+                        <option value="og">OG Tier</option>
+                        <option value="mega">Mega OP Tier</option>
+                        <option value="op">OP Tier</option>
+                        <option value="normal">Normal Tier</option>
+                    </select>
+                    <select id="own-create-type" class="src-select" style="padding:8px; font-size:0.85rem; margin-bottom:6px;">
+                        <option value="passive">Saniye Başına Kazanç (Passive)</option>
+                        <option value="click">Tıklama Başına Kazanç (Click)</option>
+                        <option value="click_mult">Tıklama Çarpanı (Click Mult)</option>
+                        <option value="global_mult">Küresel Kazanç Çarpanı (Global Mult)</option>
+                        <option value="hybrid">Luzy Hibrit (Click + Passive)</option>
+                    </select>
+                    <input type="number" id="own-create-val" class="src-input" placeholder="Güç veya Çarpan Değeri..." style="padding:8px; font-size:0.85rem; margin-bottom:6px;">
+                    <button class="btn btn-primary" onclick="ownerCreatePlayerAction()" style="margin-bottom:0; padding:8px; font-size:0.8rem;">FUTBOLCU OLUŞTUR VE KADROYA KAT</button>
+                </div>
+
+                <button class="btn btn-secondary" onclick="closeAdminPanelDashboard()" style="margin-top:5px; padding:10px; font-size:0.85rem;">OYUNA GERİ DÖN</button>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        let saveState = {
+            username: "",
+            sessionRole: "user", 
+            money: 0,
+            cpc: 1,
+            cps: 0,
+            prestigeMultiplier: 1.0,
+            players: [],
+            activeSponsorId: null,
+            sponsorMultiplier: 1.0,
+            clubBonusPercent: 0,  
+            clubBonusText: "",
+            wonTrophies: []
+        };
+
+        let registeredAdmins = JSON.parse(localStorage.getItem("src_fm_admins") || "{}");
+        let defaultPlayersTemplate = [];
+        let matchTimer = null;
+        let matchCountdown = 45;
+        let currentNextOpponent = "";
+
+        let opponentTeams = ["Beşiktaş JK", "Galatasaray", "Fenerbahçe", "Trabzonspor", "Başakşehir", "Antalyaspor", "Samsunspor", "Göztepe"];
+        
+        let sponsorTemplate = [
+            { id: "sp_1", name: "Mahalle Bakkalı A.Ş.", reqMoney: 0, reqOVR: 0, mult: 1.05, text: "CPS Kazancını %5 Artırır", payout: 500 },
+            { id: "sp_2", name: "SRC Kebap Salonu", reqMoney: 50000, reqOVR: 500, mult: 1.15, text: "CPS Kazancını %15 Artırır", payout: 3000 },
+            { id: "sp_3", name: "Reeder Mobile", reqMoney: 500000, reqOVR: 5000, mult: 1.30, text: "CPS Kazancını %30 Artırır", payout: 25000 },
+            { id: "sp_4", name: "Luzy Technology", reqMoney: 15000000, reqOVR: 50000, mult: 1.60, text: "CPS Kazancını %60 Muazzam Katlar!", payout: 200000 },
+            { id: "sp_5", name: "SRC SUPREME HOLDİNG", reqMoney: 100000000, reqOVR: 250000, mult: 2.20, text: "CPS Kazancını REKOR %120 Katlar!", payout: 1500000 }
+        ];
+
+        let trophyTemplate = [
+            { id: "tr_1", name: "🇹🇷 Ziraat Türkiye Kupası", reqOVR: 50000, prestigeAdd: 0.30, desc: "Kulüp gelişimine kalıcı +%30 Sezon Çarpanı ekler." },
+            { id: "tr_2", name: "🏆 Trendyol Süper Lig Kupası", reqOVR: 1000000, prestigeAdd: 0.50, desc: "Kulüp gelişimine kalıcı +%50 Sezon Çarpanı ekler." },
+            { id: "tr_3", name: "🇪🇺 UEFA Avrupa Ligi Kupası", reqOVR: 15000000, prestigeAdd: 0.75, desc: "Kulüp gelişimine kalıcı +%75 Sezon Çarpanı ekler." },
+            { id: "tr_4", name: "⭐ UEFA Şampiyonlar Ligi Kupası", reqOVR: 250000000, prestigeAdd: 1.00, desc: "Kulüp gelişimine kalıcı +%100 Sezon Çarpanı ekler." }
+        ];
+
+        window.goScreen = function(id) {
+            document.querySelectorAll('.screen').forEach(s => { s.style.display = 'none'; });
+            const target = document.getElementById(id);
+            if (target) { target.style.display = 'flex'; }
+        };
+
+        window.switchGameTab = function(tabId) {
+            document.querySelectorAll('.tab-content').forEach(content => { content.classList.remove('active'); });
+            document.querySelectorAll('.tab-btn').forEach(btn => { btn.classList.remove('active'); });
+            
+            document.getElementById(tabId).classList.add('active');
+            if (window.event && window.event.currentTarget) {
+                window.event.currentTarget.classList.add('active');
+            }
+        };
+
+        function generateDefaultPlayers() {
+            defaultPlayersTemplate = [];
+            
+            // --- SADECE EN SON PAKETTEN ÇIKAN GİZLİ EN DEĞERLİ 2 ÇARPAN KARTI (MYSTERY) ---
+            defaultPlayersTemplate.push({ id: 999, name: "Cristiano Ronaldo (Prime CR7)", tier: "supreme", desc: "👑 Mistik Efsane / Global Geliri Muazzam Katlar", cost: 0, effect: 20, type: "global_mult", count: 0, isMystery: true, calcWeight: 999999999999 });
+            defaultPlayersTemplate.push({ id: 998, name: "Lionel Messi (Prime LM10)", tier: "supreme", desc: "👑 Mistik Efsane / Tıklama Gücünü Uçurur", cost: 0, effect: 20, type: "click_mult", count: 0, isMystery: true, calcWeight: 999999999999 });
+
+            // --- LUZY PREMIUM HİBRİT FUTBOLCU KARTI (HEM TIKLAMA HEM SANİYE BAŞINA KAZANDIRAN SÜPERSTAR) ---
+            defaultPlayersTemplate.push({ id: 506, name: "Luzy (Süperstar)", tier: "admin", desc: "🔱 Çift Etkili Saf Güç: Hem Tık Hem Saniye Başına Para Verir!", cost: 0, effect: 1500000, type: "hybrid", count: 0, isMystery: true, hideUntilOwned: true, calcWeight: 888888888888 });
+
+            // SUPREME TIER (Çarpanlar ve Yüksek Saf Güçler)
+            defaultPlayersTemplate.push({ id: 902, name: "Zinedine Zidane (Prime)", tier: "supreme", desc: "🌌 Tıklama Kazancını Katlar", cost: 0, effect: 5, type: "click_mult", count: 0, isMystery: false, calcWeight: 85000000000 });
+            defaultPlayersTemplate.push({ id: 901, name: "Prime Ronaldo (R9)", tier: "supreme", desc: "🌌 Küresel Kazancı Katlar", cost: 0, effect: 3, type: "global_mult", count: 0, isMystery: false, calcWeight: 75000000000 });
+            defaultPlayersTemplate.push({ id: 903, name: "Ronaldinho", tier: "supreme", desc: "🌌 Samba Sihirbazı Prime", cost: 0, effect: 390000, type: "passive", count: 0, isMystery: false, calcWeight: 65000000000 });
+            defaultPlayersTemplate.push({ id: 904, name: "Thierry Henry (Prime)", tier: "supreme", desc: "🌌 Arsenal Efsane Lideri", cost: 0, effect: 360000, type: "click", count: 0, isMystery: false, calcWeight: 55000000000 });
+            defaultPlayersTemplate.push({ id: 905, name: "Zlatan Ibrahimović (Prime)", tier: "supreme", desc: "🌌 Akrobatik Golcü", cost: 0, effect: 330000, type: "passive", count: 0, isMystery: false, calcWeight: 45000000000 });
+
+            // ICONS TIER
+            defaultPlayersTemplate.push({ id: 804, name: "Viktor Gyökeres (Prime)", tier: "icons", desc: "🔱 Yeni Nesil Gol Makinesi", cost: 0, effect: 250000, type: "passive", count: 0, isMystery: false, calcWeight: 28000000000 });
+            defaultPlayersTemplate.push({ id: 805, name: "Cole Palmer (Cold Prime)", tier: "icons", desc: "🔱 Soğukkanlı Maestro", cost: 0, effect: 220000, type: "click", count: 0, isMystery: false, calcWeight: 24000000000 });
+            defaultPlayersTemplate.push({ id: 802, name: "Maradona", tier: "icons", desc: "🔱 Altın Çocuk Dönemi", cost: 0, effect: 190000, type: "passive", count: 0, isMystery: false, calcWeight: 19000000000 });
+            defaultPlayersTemplate.push({ id: 801, name: "Pele", tier: "icons", desc: "🔱 Efsanevi Golcü", cost: 0, effect: 160000, type: "click", count: 0, isMystery: false, calcWeight: 15000000000 });
+            defaultPlayersTemplate.push({ id: 806, name: "Roberto Carlos", tier: "icons", desc: "🔱 Füzeci Sol Bek", cost: 0, effect: 140000, type: "passive", count: 0, isMystery: false, calcWeight: 11000000000 });
+
+            // OG TIER 
+            defaultPlayersTemplate.push({ id: 704, name: "Gheorghe Hagi (Prime)", tier: "og", desc: "OG / Karpatların Maradonası", cost: 0, effect: 110000, type: "click", count: 0, isMystery: false, calcWeight: 8000000000 });
+            defaultPlayersTemplate.push({ id: 705, name: "Alex de Souza (Prime)", tier: "og", desc: "OG / Kadıköy Profesörü", cost: 0, effect: 105000, type: "passive", count: 0, isMystery: false, calcWeight: 7500000000 });
+            defaultPlayersTemplate.push({ id: 706, name: "Ricardo Quaresma (Prime)", tier: "og", desc: "OG / Trivela Üstadı", cost: 0, effect: 100000, type: "click", count: 0, isMystery: false, calcWeight: 7200000000 });
+            defaultPlayersTemplate.push({ id: 703, name: "Jamal Musiala (25/26)", tier: "og", desc: "OG / Bavyera Sihirbazı", cost: 0, effect: 95000, type: "passive", count: 0, isMystery: false, calcWeight: 6500000000 });
+            defaultPlayersTemplate.push({ id: 702, name: "Florian Wirtz (25/26)", tier: "og", desc: "OG / Leverkusen Beyni", cost: 0, effect: 80000, type: "click", count: 0, isMystery: false, calcWeight: 5000000000 });
+            defaultPlayersTemplate.push({ id: 701, name: "Kaká (Prime 2007)", tier: "og", desc: "OG / Ballon d'Or Sanatçısı", cost: 0, effect: 2, type: "global_mult", count: 0, isMystery: false, calcWeight: 3800000000 });
+
+            // MEGA TIER
+            defaultPlayersTemplate.push({ id: 1, name: "Jude Bellingham (25/26)", tier: "mega", desc: "Mega / Madrid Yıldızı", cost: 680000000, effect: 35000, type: "passive", count: 0, isMystery: false });
+            defaultPlayersTemplate.push({ id: 2, name: "Vinicius Jr", tier: "mega", desc: "Mega / Kanat Forvet", cost: 520000000, effect: 28000, type: "click", count: 0, isMystery: false });
+            defaultPlayersTemplate.push({ id: 3, name: "Kylian Mbappe", tier: "mega", desc: "Mega / Hız Canavarı", cost: 450000000, effect: 25000, type: "passive", count: 0, isMystery: false });
+            defaultPlayersTemplate.push({ id: 4, name: "Lamine Yamal (25/26)", tier: "mega", desc: "Mega / Katalan Harikası", cost: 400000000, effect: 22000, type: "click", count: 0, isMystery: false });
+
+            // OP TIER
+            defaultPlayersTemplate.push({ id: 10, name: "Erling Haaland", tier: "op", desc: "OP / Gol Makinesi", cost: 140000000, effect: 9500, type: "passive", count: 0, isMystery: false });
+            defaultPlayersTemplate.push({ id: 11, name: "Kevin De Bruyne", tier: "op", desc: "OP / Asist Uzmanı", cost: 110000000, effect: 8000, type: "click", count: 0, isMystery: false });
+            defaultPlayersTemplate.push({ id: 12, name: "Bukayo Saka (25/26)", tier: "op", desc: "OP / Londra Lideri", cost: 95000000, effect: 7500, type: "passive", count: 0, isMystery: false });
+            defaultPlayersTemplate.push({ id: 13, name: "Rodri (Masterclass)", tier: "op", desc: "OP / Orta Saha Sigortası", cost: 85000000, effect: 7000, type: "click", count: 0, isMystery: false });
+
+            // NORMAL HAVUZ (YERLİ / YABANCI SÜPER LİG & DİĞERLERİ)
+            let trNormals = [
+                "Semih Kılıçsoy", "Barış Alper Yılmaz", "Arda Güler", "Kenan Yıldız", 
+                "Ferdi Kadıoğlu", "Kerem Aktürkoğlu", "Hakan Çalhanoğlu", "Orkun Kökçü", 
+                "İrfan Can Kha.", "Cenk Tosun", "İsmail Yüksek", "Abdülkerim B.", 
+                "Mert Günok", "Uğurcan Çakır", "Zeki Çelik", "Can Uzun", 
+                "Yunus Akgün", "Gedson Fernandes", "Rafa Silva", "Victor Osimhen"
+            ];
+            let foreignNormals = [
+                "Ciro Immobile", "Fred", "Dusan Tadic", "Davinson Sanchez", 
+                "Allan Saint-Maximin", "Lucas Torreira", "Mauro Icardi", "Michy Batshuayi", 
+                "Edin Dzeko", "Sebastian Szymanski", "Dominik Livakovic", "Gabriel Sara", 
+                "Arthur Masuaku", "Milot Rashica", "Alexander Djiku", "Rodrigo Becao",
+                "Sofyan Amrabat", "Elias Jelert", "Cher Ndour", "Ernest Muçi"
+            ];
+
+            for(let i = 19; i >= 0; i--) {
+                let assignedType = (i % 2 === 0) ? "passive" : "click";
+                defaultPlayersTemplate.push({ id: 100 + i, name: trNormals[i], tier: "normal", desc: `Normal / ${assignedType === 'click'?'Tıklama':'Saniye'} Odaklı`, cost: 12000 + (i * 6500), effect: 40 + (i * 25), type: assignedType, count: 0, isMystery: false });
+                defaultPlayersTemplate.push({ id: 200 + i, name: foreignNormals[i], tier: "normal", desc: `Normal / ${assignedType === 'click'?'Tıklama':'Saniye'} Odaklı`, cost: 15000 + (i * 7000), effect: 50 + (i * 30), type: assignedType, count: 0, isMystery: false });
+            }
+        }
+
+        window.onload = function() {
+            generateDefaultPlayers();
+            pickNextOpponent();
+        };
+
+        window.submitPlayerAuth = function() {
+            let userInp = document.getElementById('player-username').value.trim();
+            if(!userInp) { alert("Lütfen bir isim yazın!"); return; }
+
+            let cleanUser = userInp.toLowerCase();
+            let localData = localStorage.getItem("src_fm_v58_" + cleanUser);
+
+            if(localData) {
+                saveState = JSON.parse(localData);
+            } else {
+                saveState.username = userInp;
+                saveState.sessionRole = "user"; 
+                saveState.money = 0;
+                saveState.cpc = 1;
+                saveState.cps = 0;
+                saveState.prestigeMultiplier = 1.0;
+                saveState.activeSponsorId = null;
+                saveState.sponsorMultiplier = 1.0;
+                saveState.wonTrophies = [];
+                saveState.players = JSON.parse(JSON.stringify(defaultPlayersTemplate));
+                localStorage.setItem("src_fm_v58_" + cleanUser, JSON.stringify(saveState));
+            }
+
+            let nameUpper = userInp.toUpperCase();
+            let appliedPercent = 0;
+            let appliedText = "";
+
+            if(nameUpper.includes("BJK") || nameUpper.includes("BEŞİKTAŞ") || nameUpper.includes("BESIKTAS")) { appliedPercent = 19.03; appliedText = "🦅 BJK (1903)"; } 
+            else if(nameUpper.includes("GS") || nameUpper.includes("GALATASARAY")) { appliedPercent = 19.05; appliedText = "🦁 GS (1905)"; } 
+            else if(nameUpper.includes("FB") || nameUpper.includes("FENERBAHÇE")) { appliedPercent = 19.07; appliedText = "🟨🟦 FB (1907)"; } 
+            else if(nameUpper.includes("TS") || nameUpper.includes("TRABZONSPOR")) { appliedPercent = 19.67; appliedText = "🌊 TS (1967)"; }
+
+            saveState.clubBonusPercent = appliedPercent;
+            saveState.clubBonusText = appliedText;
+
+            if(appliedPercent > 0) { alert(`🎉 "${appliedText}" kulüp bonusuyla tüm kazançlara ek %${appliedPercent} çarpan tanımlandı!`); }
+            initGameSession();
+        };
+
+        // --- GELİR HESAPLAMA MOTORU (ÇARPAN SİSTEMLİ) ---
+        function calculateCurrentPower() {
+            let rawCpc = 1;
+            let rawCps = 0;
+            let clickMultFactor = 1;
+            let globalMultFactor = 1;
+
+            saveState.players.forEach(p => {
+                if(p.count > 0) {
+                    if(p.type === "click") {
+                        rawCpc += (p.effect * p.count);
+                    } else if(p.type === "passive") {
+                        rawCps += (p.effect * p.count);
+                    } else if(p.type === "hybrid") {
+                        // Hem tık hem saniye gücü veren Luzy Futbolcu kartı
+                        rawCpc += (p.effect * p.count);
+                        rawCps += (p.effect * p.count);
+                    } else if(p.type === "click_mult") {
+                        clickMultFactor += ((p.effect - 1) * p.count);
+                    } else if(p.type === "global_mult") {
+                        globalMultFactor += ((p.effect - 1) * p.count);
+                    }
+                }
+            });
+
+            let clubBonus = 1.0 + (saveState.clubBonusPercent / 100);
+
+            // Nihai Sonuçlar
+            let finalCpc = Math.ceil(rawCpc * clickMultFactor * globalMultFactor * clubBonus * saveState.prestigeMultiplier);
+            let finalCps = Math.floor(rawCps * globalMultFactor * saveState.sponsorMultiplier * clubBonus * saveState.prestigeMultiplier);
+
+            return { cpc: finalCpc, cps: finalCps };
+        }
+
+        window.triggerPitchClick = function(e) {
+            if(!saveState.username) return;
+
+            let power = calculateCurrentPower();
+            saveState.money += power.cpc;
+            
+            updateStatsHUD();
+
+            let floater = document.createElement('div');
+            floater.className = 'floating-add';
+            floater.innerText = `+${power.cpc.toLocaleString()} ₺`;
+            floater.style.left = e.clientX + 'px';
+            floater.style.top = e.clientY + 'px';
+            document.body.appendChild(floater);
+            setTimeout(() => floater.remove(), 600);
+        };
+
+        window.triggerMatchActionClick = function() {
+            document.getElementById('btn-start-match-action').style.display = 'none';
+            triggerLiveMatchSimulation();
+        };
+
+        window.triggerAdminGate = function() {
+            document.getElementById('wall-pass').value = "";
+            goScreen('screen-wall');
+        };
+
+        window.submitWallAuth = function() {
+            if(document.getElementById('wall-pass').value === "456") { goScreen('screen-admin-auth'); } else { alert("Hatalı Şifre!"); goScreen('screen-game'); }
+        };
+
+        window.submitAdminLogin = function() {
+            let u = document.getElementById('adm-user').value.trim();
+            let p = document.getElementById('adm-pass').value.trim();
+            if(u === "Luzy" && p === "99019901") { saveState.sessionRole = "owner"; alert("👑 LUZY OWNER Girişi Yapıldı!"); openPanelDashboard(); return; }
+            if(registeredAdmins[u] && registeredAdmins[u] === p) { saveState.sessionRole = "admin"; alert(`⚡ ADMIN [${u}] Girişi Yapıldı!`); openPanelDashboard(); } else { alert("Giriş başarısız!"); }
+        };
+
+        window.submitAdminRegister = function() {
+            let u = document.getElementById('adm-user').value.trim();
+            let p = document.getElementById('adm-pass').value.trim();
+            if(!u || !p || u === "Luzy") return;
+            if(registeredAdmins[u]) { alert("Bu hesap zaten mevcut!"); } else { registeredAdmins[u] = p; localStorage.setItem("src_fm_admins", JSON.stringify(registeredAdmins)); alert(`⚡ [${u}] Kaydedildi.`); }
+        };
+
+        window.adminGiveMoneyAction = function() {
+            let amt = parseFloat(document.getElementById('pnl-money-amt').value);
+            if(isNaN(amt) || amt <= 0) return;
+            saveState.money += amt; updateStatsHUD(); renderSponsors(); alert("Para Basıldı!");
+        };
+
+        window.ownerCreatePlayerAction = function() {
+            let nameInp = document.getElementById('own-create-name').value.trim();
+            let tierInp = document.getElementById('own-create-tier').value;
+            let typeInp = document.getElementById('own-create-type').value;
+            let valInp = parseInt(document.getElementById('own-create-val').value);
+
+            if(!nameInp || isNaN(valInp) || valInp <= 0) {
+                alert("Lütfen geçerli bir isim ve güç miktarı girin!");
+                return;
+            }
+
+            let descText = `Özel Motor Modifikasyonu`;
+            if(typeInp === "click_mult") descText = `Tıklama Kazancını ${valInp}x Katlar`;
+            if(typeInp === "global_mult") descText = `Küresel Kazancı ${valInp}x Katlar`;
+            if(typeInp === "hybrid") descText = `Hem Tık Hem Saniye Başına Para Verir`;
+
+            let newPlayer = { 
+                id: Date.now(), 
+                name: nameInp, 
+                tier: tierInp, 
+                desc: descText, 
+                cost: 0, 
+                effect: valInp, 
+                type: typeInp, 
+                count: 1, 
+                isMystery: true, 
+                calcWeight: valInp * 100000 
+            };
+
+            saveState.players.unshift(newPlayer);
+            updateStatsHUD(); 
+            renderMarketList(); 
+            renderPanelGridList(); 
+            
+            alert(`⚡ ${nameInp} (${tierInp.toUpperCase()}) başarıyla üretildi ve doğrudan kadrona eklendi!`);
+        };
+
+        window.closeAdminPanelDashboard = function() {
+            localSaveSync(); initGameSession();
+        };
+
+        window.triggerExitToMenu = function() {
+            localSaveSync(); if(matchTimer) clearInterval(matchTimer); saveState.username = ""; goScreen('screen-main-menu');
+        };
+
+        function pickNextOpponent() { currentNextOpponent = opponentTeams[Math.floor(Math.random() * opponentTeams.length)]; }
+
+        window.openSelectedPack = function(packType, cost) {
+            if(saveState.money < cost) { alert(`Yetersiz Bakiye! En az ${cost.toLocaleString()} ₺ gerekli.`); return; }
+
+            saveState.money -= cost;
+            updateStatsHUD();
+
+            let luckyPlayer = null;
+
+            if(packType === 'mystery') {
+                let pool = saveState.players.filter(p => p.id === 999 || p.id === 998);
+                luckyPlayer = pool[Math.floor(Math.random() * pool.length)];
+            }
+            else if(packType === 'new8') {
+                let rng = Math.random() * 100;
+                let t = "og";
+                if(rng < 25) t = "icons";
+                let pool = saveState.players.filter(p => p.tier === t && p.id !== 506 && p.id !== 999 && p.id !== 998);
+                luckyPlayer = pool[Math.floor(Math.random() * pool.length)];
+            } 
+            else if(packType === 'new9') {
+                let rng = Math.random() * 100;
+                let t = "icons";
+                if(rng < 30) t = "supreme";
+                let pool = saveState.players.filter(p => p.tier === t && p.id !== 506 && p.id !== 999 && p.id !== 998);
+                luckyPlayer = pool[Math.floor(Math.random() * pool.length)];
+            }
+            else if(packType === 'new10') {
+                let rng = Math.random() * 100;
+                if(rng <= 1.0) {
+                    luckyPlayer = saveState.players.find(p => p.id === 506); // Luzy Futbolcu kartı şansı
+                } else {
+                    let t = (rng < 40.0) ? "supreme" : "icons";
+                    let pool = saveState.players.filter(p => p.tier === t && p.id !== 506 && p.id !== 999 && p.id !== 998);
+                    luckyPlayer = pool[Math.floor(Math.random() * pool.length)];
+                }
+            }
+            else {
+                let rng = Math.random() * 100;
+                let chosenTier = "normal";
+
+                if(packType === 'new2') { chosenTier = (rng < 15) ? "op" : "normal"; }
+                else if(packType === 'bronz') { chosenTier = (rng < 10) ? "op" : "normal"; }
+                else if(packType === 'new3') { chosenTier = (rng < 35) ? "op" : "normal"; }
+                else if(packType === 'gumus') { chosenTier = (rng < 30) ? "op" : "normal"; }
+                else if(packType === 'altin') { if(rng < 10) chosenTier = "mega"; else if(rng < 60) chosenTier = "op"; else chosenTier = "normal"; }
+                else if(packType === 'new4') { if(rng < 15) chosenTier = "mega"; else if(rng < 65) chosenTier = "op"; else chosenTier = "normal"; }
+                else if(packType === 'elmas') { if(rng < 5) chosenTier = "og"; else if(rng < 40) chosenTier = "mega"; else chosenTier = "op"; }
+                else if(packType === 'new5') { if(rng < 5) chosenTier = "og"; else if(rng < 50) chosenTier = "mega"; else chosenTier = "op"; }
+                else if(packType === 'ultimate') { if(rng < 10) chosenTier = "icons"; else if(rng < 50) chosenTier = "og"; else chosenTier = "mega"; }
+                else if(packType === 'new6') { if(rng < 10) chosenTier = "icons"; else if(rng < 55) chosenTier = "og"; else chosenTier = "mega"; }
+                else if(packType === 'new7') { if(rng < 15) chosenTier = "supreme"; else if(rng < 60) chosenTier = "icons"; else chosenTier = "og"; }
+
+                let pool = saveState.players.filter(p => p.tier === chosenTier && !p.isMystery);
+                if(pool.length === 0) pool = saveState.players.filter(p => !p.isMystery);
+                luckyPlayer = pool[Math.floor(Math.random() * pool.length)];
+            }
+
+            if(!luckyPlayer) return;
+            
+            luckyPlayer.count++;
+
+            const overlay = document.getElementById('pack-reveal-overlay');
+            const cardBox = document.getElementById('pack-card-box');
+            document.getElementById('reveal-player-name').innerText = luckyPlayer.name;
+            
+            let displayEffect = `+${luckyPlayer.effect.toLocaleString()}`;
+            if(luckyPlayer.type === "click_mult" || luckyPlayer.type === "global_mult") displayEffect = `x${luckyPlayer.effect} Çarpan`;
+            else if(luckyPlayer.type === "hybrid") displayEffect = `+${luckyPlayer.effect.toLocaleString()} Çift Etki`;
+            else displayEffect += luckyPlayer.type === 'click' ? ' / Tık' : ' / Sn';
+
+            document.getElementById('reveal-player-stat').innerText = displayEffect;
+
+            cardBox.className = "reveal-card item-tier-" + luckyPlayer.tier;
+            overlay.style.display = "flex";
+
+            updateStatsHUD(); renderMarketList(); renderSponsors(); renderTrophies(); localSaveSync();
+        };
+
+        window.closePackReveal = function() { document.getElementById('pack-reveal-overlay').style.display = "none"; };
+
+        function renderSponsors() {
+            const container = document.getElementById('sponsors-container');
+            container.innerHTML = "";
+            let power = calculateCurrentPower();
+            let myOVR = power.cpc + power.cps;
+
+            sponsorTemplate.forEach(sp => {
+                let isUnlocked = (saveState.money >= sp.reqMoney && myOVR >= sp.reqOVR);
+                let btnHtml = "";
+
+                if(saveState.activeSponsorId === sp.id) { btnHtml = `<button class="btn btn-success" style="width:auto; margin:0; font-size:0.7rem; padding:6px 12px;">AKTİF</button>`; } 
+                else if(isUnlocked) { btnHtml = `<button class="btn btn-primary" style="width:auto; margin:0; font-size:0.7rem; padding:6px 12px;" onclick="signSponsor('${sp.id}')">İMZALA</button>`; } 
+                else { btnHtml = `<span style="font-size:0.65rem; color:var(--danger); font-weight:bold;">KİLİTLİ</span>`; }
+
+                container.innerHTML += `
+                    <div class="sponsor-card" style="${saveState.activeSponsorId === sp.id ? 'border-color:var(--success); background:rgba(0,255,102,0.02);':''}">
+                        <div style="text-align:left; max-width: 70%;">
+                            <div style="font-weight:900; font-size:0.8rem; color:#fff; word-break:break-all;">${sp.name}</div>
+                            <div style="font-size:0.65rem; color:#a0aec0; margin-top:2px;">${sp.text}</div>
+                            <div style="font-size:0.6rem; color:var(--secondary);">İmza Primi: +${sp.payout.toLocaleString()} ₺</div>
+                        </div>
+                        <div>${btnHtml}</div>
+                    </div>
+                `;
+            });
+        }
+
+        function renderTrophies() {
+            const container = document.getElementById('trophies-container');
+            container.innerHTML = "";
+            let power = calculateCurrentPower();
+            let totalOvr = power.cpc + power.cps;
+
+            trophyTemplate.forEach(tr => {
+                let alreadyWon = saveState.wonTrophies.includes(tr.id);
+                let isReady = totalOvr >= tr.reqOVR;
+                let btnHtml = "";
+
+                if(alreadyWon) { btnHtml = `<span style="font-size:0.7rem; color:var(--success); font-weight:900;">🏆 KAZANILDI</span>`; } 
+                else if(isReady) { btnHtml = `<button class="btn btn-success" style="width:auto; margin:0; font-size:0.7rem; padding:6px 12px; font-weight:900;" onclick="claimTrophy('${tr.id}')">KUPAYI KALDIR</button>`; } 
+                else { btnHtml = `<span style="font-size:0.65rem; color:#a0aec0; font-weight:bold; text-align:right;">GEREKLİ OVR: <br>${tr.reqOVR.toLocaleString()}</span>`; }
+
+                container.innerHTML += `
+                    <div class="trophy-card ${alreadyWon ? 'trophy-unlocked':''}">
+                        <div style="text-align:left; max-width:65%;">
+                            <div style="font-weight:900; font-size:0.85rem; color:#fff;">${tr.name}</div>
+                            <div style="font-size:0.65rem; color:#cbd5e0; margin-top:2px;">${tr.desc}</div>
+                        </div>
+                        <div style="display:flex; align-items:center; justify-content:center; min-width:90px;">${btnHtml}</div>
+                    </div>
+                `;
+            });
+        }
+
+        window.claimTrophy = function(id) {
+            let tr = trophyTemplate.find(t => t.id === id);
+            if(!tr) return;
+
+            if(confirm(`${tr.name} kupasını kaldırmak yeni sezona geçişi başlatacaktır!\n\nKalıcı +%${tr.prestigeAdd * 100} Sezon Çarpanı kazanacaksınız.`)) {
+                saveState.prestigeMultiplier += tr.prestigeAdd;
+                if(!saveState.wonTrophies.includes(id)) { saveState.wonTrophies.push(id); }
+                saveState.money = 0; saveState.activeSponsorId = null; saveState.sponsorMultiplier = 1.0;
+                generateDefaultPlayers();
+                alert(`🎊 KUPA KAZANILDI! Yeni sezona x${saveState.prestigeMultiplier.toFixed(2)} güciiyle başlıyorsunuz.`);
+                initGameSession();
+            }
+        };
+
+        window.signSponsor = function(id) {
+            let sp = sponsorTemplate.find(s => s.id === id);
+            if(!sp) return;
+            saveState.activeSponsorId = sp.id; saveState.sponsorMultiplier = sp.mult; saveState.money += sp.payout;
+            alert(`🤝 Anlaşma imzalandı! Kasaya +${sp.payout.toLocaleString()} ₺ eklendi.`);
+            updateStatsHUD(); renderSponsors(); localSaveSync();
+        };
+
+        window.sellPlayerItem = function(id) {
+            let player = saveState.players.find(p => p.id === id);
+            if(!player || player.count <= 0) return;
+
+            let power = calculateCurrentPower();
+            let totalRawOvr = power.cpc + power.cps;
+            let baseManagerCut = Math.max(0.25, 0.60 - (Math.min(totalRawOvr, 1000000) / 2500000));
+            
+            let sellPrice = (player.cost === 0) ? Math.floor((player.calcWeight || player.effect * 150) * (1 - baseManagerCut)) : Math.floor(player.cost * (1 - baseManagerCut));
+
+            if(confirm(`🏃 ${player.name} satılıyor. Net Tutar: ${sellPrice.toLocaleString()} ₺. Onaylıyor musunuz?`)) {
+                player.count--; saveState.money += sellPrice;
+                updateStatsHUD(); renderMarketList(); renderSponsors(); renderTrophies(); localSaveSync();
+            }
+        };
+
+        function startLeagueEngine() {
+            if(matchTimer) clearInterval(matchTimer);
+            matchCountdown = 45;
+            document.getElementById('match-status').innerText = `⏳ Sıradaki Maç: vs ${currentNextOpponent}`;
+
+            matchTimer = setInterval(() => {
+                let btnMatch = document.getElementById('btn-start-match-action');
+                if(btnMatch && btnMatch.style.display === 'block') return;
+                matchCountdown--;
+                if(matchCountdown <= 0) {
+                    document.getElementById('match-status').innerText = `🚨 MAÇ SAATİ GELDİ! HAZIRSAN BUTONA BAS!`;
+                    if (btnMatch) btnMatch.style.display = 'block';
+                } else {
+                    document.getElementById('match-status').innerText = `⏳ HAFTANIN MAÇINA KALAN: ${matchCountdown}sn (Rakip: ${currentNextOpponent})`;
+                }
+            }, 1000);
+        }
+
+        function triggerLiveMatchSimulation() {
+            const modal = document.getElementById('live-match-modal');
+            const scoreText = document.getElementById('live-score-text');
+            const eventBox = document.getElementById('live-event-box');
+            const progressBar = document.getElementById('live-match-progress');
+            
+            modal.style.display = "flex";
+            let power = calculateCurrentPower();
+            let myOVR = power.cpc + power.cps;
+            let opponentOVR = Math.floor(Math.random() * (myOVR * 1.3)) + 10;
+            let myScore = 0; let opScore = 0; let timeline = 0;
+
+            let liveInterval = setInterval(() => {
+                timeline += 25; progressBar.style.width = timeline + "%";
+                if(timeline < 100) {
+                    eventBox.innerText = `⏱️ Ataklar tırmanıyor...`;
+                    if(Math.random() * myOVR > Math.random() * opponentOVR) { myScore++; } else if(Math.random() < 0.3) { opScore++; }
+                    scoreText.innerText = `${myScore} - ${opScore}`;
+                } else {
+                    clearInterval(liveInterval); modal.style.display = "none";
+                    processMatchResult(currentNextOpponent, myScore, opScore);
+                }
+            }, 1500); 
+        }
+
+        function processMatchResult(opponent, myScore, opScore) {
+            let statusText = document.getElementById('match-status');
+            let logText = document.getElementById('match-log');
+            let prizeMoney = 0;
+
+            if(myScore > opScore) {
+                prizeMoney = Math.floor(saveState.money * 0.02) + 1200; saveState.money += prizeMoney;
+                statusText.innerText = `🎉 GALİBİYET! (${myScore} - ${opScore})`; logText.innerText = `Ödül aktarıldı: +${prizeMoney.toLocaleString()} ₺!`;
+            } else if (myScore === opScore) {
+                prizeMoney = Math.floor(saveState.money * 0.005) + 400; saveState.money += prizeMoney;
+                statusText.innerText = `🤝 BERABERLİK! (${myScore} - ${opScore})`; logText.innerText = `Alınan ödül: +${prizeMoney.toLocaleString()} ₺`;
+            } else {
+                statusText.innerText = `❌ MAĞLUBİYET! (${myScore} - ${opScore})`; logText.innerText = `Maçı kaybettik. Kadroyu güçlendir!`;
+            }
+
+            pickNextOpponent(); updateStatsHUD(); renderSponsors(); renderTrophies(); localSaveSync(); startLeagueEngine();
+        }
+
+        function openPanelDashboard() { goScreen('screen-panel'); renderPanelGridList(); }
+
+        function initGameSession() {
+            document.getElementById('game-club-title').innerText = `${saveState.username.toUpperCase()} KULÜP KADROSU`;
+            
+            let tagHtml = `<span class="badge-tag tag-player">PLAYER</span>`;
+            if (saveState.sessionRole === "owner") {
+                tagHtml = `<span class="badge-tag tag-owner">OWNER</span>`;
+            } else if (saveState.sessionRole === "admin") {
+                tagHtml = `<span class="badge-tag tag-admin">ADMIN</span>`;
+            }
+            
+            if(saveState.clubBonusPercent > 0) tagHtml += ` <span class="badge-tag" style="background:#000; color:#fff; border:1px solid var(--secondary);">${saveState.clubBonusText}</span>`;
+
+            document.getElementById('user-display-zone').innerHTML = `${saveState.username} ${tagHtml}`;
+            goScreen('screen-game'); switchGameTab('tab-market');
+            renderMarketList(); renderSponsors(); renderTrophies(); updateStatsHUD(); startLeagueEngine();
+        }
+
+        setInterval(() => {
+            if(saveState.username) {
+                let power = calculateCurrentPower();
+                if(power.cps > 0) { saveState.money += (power.cps / 10); updateStatsHUD(); }
+            }
+        }, 100);
+
+        function updateStatsHUD() {
+            let power = calculateCurrentPower();
+            let totalOvr = power.cpc + power.cps;
+
+            document.getElementById('val-money').innerText = Math.floor(saveState.money).toLocaleString();
+            document.getElementById('val-cpc').innerText = power.cpc.toLocaleString();
+            document.getElementById('val-cps').innerText = power.cps.toLocaleString();
+            document.getElementById('val-ovr').innerText = totalOvr.toLocaleString();
+            
+            let baseManagerCut = Math.max(0.25, 0.60 - (Math.min(totalOvr, 1000000) / 2500000));
+            document.getElementById('txt-commission-level').innerText = `⚙️ Menajer Net Kazancı: %${Math.floor((1 - baseManagerCut)*100)} | Kulüp Komisyon Kesintisi: %${Math.floor(baseManagerCut*100)}`;
+
+            let rankText = "AMATÖR KÜME";
+            if(totalOvr > 250000000) rankText = "🌌 ŞAMPİYONLAR LİGİ DEVİ";
+            else if(totalOvr > 15000000) rankText = "🇪🇺 AVRUPA LİGİ SAVAŞÇISI";
+            else if(totalOvr > 1000000) rankText = "🌟 SÜPER LİG ŞAMPIONI";
+            else if(totalOvr > 250000) rankText = "⚽ 1. LİG LİDERİ";
+            
+            const lb = document.getElementById('txt-leaderboard-rank');
+            if(lb) lb.innerText = rankText;
+        }
+
+        function renderMarketList() {
+            const container = document.getElementById('players-list-container');
+            container.innerHTML = "";
+
+            const searchTerm = document.getElementById('market-search-input') ? document.getElementById('market-search-input').value.trim().toLowerCase() : "";
+            const tierOrder = { "admin": 1, "supreme": 2, "icons": 3, "og": 4, "mega": 5, "op": 6, "normal": 7 };
+
+            let sortedPlayers = [...saveState.players].sort((a, b) => {
+                let orderA = tierOrder[a.tier] || 99; 
+                let orderB = tierOrder[b.tier] || 99;
+                if (orderA !== orderB) return orderA - orderB;
+                let valA = a.cost > 0 ? a.cost : (a.calcWeight || 0);
+                let valB = b.cost > 0 ? b.cost : (b.calcWeight || 0);
+                return valB - valA; 
+            });
+
+            sortedPlayers.forEach(p => {
+                if(searchTerm !== "" && !p.name.toLowerCase().includes(searchTerm)) return;
+
+                if (p.cost === 0 && p.count === 0 && p.tier !== 'admin') return;
+                if (p.isMystery && p.count === 0) return; 
+
+                let sellBtnHtml = (p.count > 0) ? `<button class="p-sell-btn" onclick="sellPlayerItem(${p.id})">SAT</button>` : "";
+                let actionBtnHtml = `<div class="action-container">${sellBtnHtml}`;
+
+                if(p.cost > 0) {
+                    actionBtnHtml += `<button class="p-cost" onclick="buyPlayerItem(${p.id})">${Math.floor(p.cost).toLocaleString()} ₺</button>`;
+                } else {
+                    actionBtnHtml += `<span style="font-size:0.6rem; color:var(--secondary); font-weight:bold; padding:6px 4px;">🎁 SADECE PAKET</span>`;
+                }
+                actionBtnHtml += `</div>`;
+
+                let effectLabel = `+${p.effect.toLocaleString()}`;
+                if(p.type === "click_mult") effectLabel = `x${p.effect} Tık Çarpanı`;
+                else if(p.type === "global_mult") effectLabel = `x${p.effect} Global Çarpan`;
+                else if(p.type === "hybrid") effectLabel = `+${p.effect.toLocaleString()} Çift Etki (Tık + Sn)`;
+                else effectLabel += p.type === 'click' ? ' / Tık' : ' / Sn';
+
+                container.innerHTML += `
+                    <div class="player-card item-tier-${p.tier}">
+                        <div style="text-align:left;">
+                            <div class="p-title" style="${p.tier==='admin'?'color:#000;':''}">${p.name} <span style="font-size:0.75rem;">(x${p.count})</span></div>
+                            <div class="p-sub">${p.desc} | ${effectLabel}</div>
+                        </div>
+                        <div>${actionBtnHtml}</div>
+                    </div>
+                `;
+            });
+        }
+
+        window.buyPlayerItem = function(id) {
+            let player = saveState.players.find(p => p.id === id);
+            if(!player || player.cost === 0) return;
+
+            if(saveState.money >= player.cost) {
+                saveState.money -= player.cost; player.count++;
+                player.cost *= 1.35; renderMarketList(); updateStatsHUD(); renderSponsors(); renderTrophies(); localSaveSync();
+            } else { alert("Yetersiz kulüp bakiyesi!"); }
+        };
+
+        function renderPanelGridList() {
+            const grid = document.getElementById('pnl-players-grid'); grid.innerHTML = "";
+            saveState.players.forEach(p => {
+                grid.innerHTML += `
+                    <div class="grid-line">
+                        <span>${p.name} [${p.tier.toUpperCase()}]</span>
+                        <button class="btn-top btn-top-admin" style="padding:4px 8px; font-size:0.7rem; background:var(--success); color:#000;" onclick="panelInjectPlayer(${p.id})">BAS</button>
+                    </div>
+                `;
+            });
+        }
+
+        window.panelInjectPlayer = function(id) {
+            let player = saveState.players.find(p => p.id === id); if(!player) return;
+            let injectQty = parseInt(document.getElementById('pnl-player-qty').value) || 1;
+            
+            player.count += injectQty;
+            updateStatsHUD(); renderMarketList();
+            alert(`⚡ Kadroya ${injectQty} adet ${player.name} doğrudan enjekte edildi!`);
+        };
+
+        function localSaveSync() { if(saveState.username) { localStorage.setItem("src_fm_v58_" + saveState.username.toLowerCase(), JSON.stringify(saveState)); } }
+    </script>
+</body>
+</html>
